@@ -1,4 +1,4 @@
-// api.js - Backend API helpers for NewsHub frontend
+// api.js - Backend API helpers for ABD News frontend
 
 const NEWSHUB_API_BASE = '/api';
 const NEWSHUB_API_ORIGIN = window.location.origin;

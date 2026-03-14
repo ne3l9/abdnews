@@ -1,4 +1,4 @@
-// auth.js - Authentication module for NewsHub
+// auth.js - Authentication module for ABD News
 
 // Auth state management
 const AUTH_STORAGE_KEY = 'newshub_auth';

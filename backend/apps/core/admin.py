@@ -242,23 +242,27 @@ class AdvertisementBannerAdmin(admin.ModelAdmin):
     search_fields = ['title', 'link_url']
     readonly_fields = [
         'impressions', 'clicks', 'ctr_display', 'image_preview',
-        'link_url_display', 'created_at', 'updated_at'
+        'created_at', 'updated_at'
     ]
     list_per_page = 20
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'position', 'order')
+            'fields': ('title', 'position', 'order', 'is_active'),
+            'description': 'Enter advertisement details. All fields marked with * are required.'
         }),
         ('Media', {
-            'fields': ('image', 'image_preview')
+            'fields': ('image', 'image_preview'),
+            'description': 'Upload an advertisement banner image (JPG, PNG, or GIF, max 5MB)'
         }),
         ('Link & Placement', {
-            'fields': ('link_url', 'link_url_display', 'is_active')
+            'fields': ('link_url',),
+            'description': 'Enter the URL where users will be redirected when clicking the ad'
         }),
         ('Analytics', {
             'fields': ('impressions', 'clicks', 'ctr_display'),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
+            'description': 'Automatically tracked statistics'
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -270,44 +274,58 @@ class AdvertisementBannerAdmin(admin.ModelAdmin):
     
     def image_preview(self, obj):
         """Display advertisement image preview"""
-        if obj.image:
-            return format_html(
-                '<img src="{}" style="max-width: 300px; max-height: 200px; border-radius: 5px;" />',
-                obj.image.url
-            )
-        return 'No image'
+        if not obj or not obj.pk:
+            return format_html('<span style="color: #999;">No image</span>')
+        try:
+            if obj.image and hasattr(obj.image, 'url'):
+                return format_html(
+                    '<img src="{}" style="max-width: 300px; max-height: 200px; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />',
+                    obj.image.url
+                )
+        except Exception:
+            pass
+        return format_html('<span style="color: #999;">No image uploaded</span>')
     image_preview.short_description = 'Banner Preview'
     
     def link_url_display(self, obj):
         """Display clickable advertisement URL"""
+        if not obj:
+            return ''
         if obj.link_url:
             return format_html(
                 '<a href="{}" target="_blank" style="color: #0066cc; text-decoration: none;">{}</a>',
                 obj.link_url, obj.link_url[:40] + '...' if len(obj.link_url) > 40 else obj.link_url
             )
-        return 'No link'
+        return format_html('<span style="color: #999;">No link</span>')
     link_url_display.short_description = 'Link URL'
     
     def status_badge(self, obj):
         """Display colored active/inactive badge"""
+        if not obj:
+            return ''
         if obj.is_active:
-            return format_html('<span style="color: green; font-weight: bold;">Active</span>')
-        return format_html('<span style="color: gray; font-weight: bold;">Inactive</span>')
+            return format_html('<span style="color: green; font-weight: bold;">✓ Active</span>')
+        return format_html('<span style="color: gray; font-weight: bold;">○ Inactive</span>')
     status_badge.short_description = 'Status'
     
     def ctr_display(self, obj):
         """Display Click-Through Rate with color coding"""
-        ctr = obj.click_through_rate
-        if ctr >= 5:
-            color = 'green'
-        elif ctr >= 2:
-            color = 'orange'
-        else:
-            color = 'red'
-        return format_html(
-            '<span style="color: {}; font-weight: bold;">{:.2f}%</span>',
-            color, ctr
-        )
+        if not obj or not hasattr(obj, 'click_through_rate'):
+            return '0.00%'
+        try:
+            ctr = obj.click_through_rate
+            if ctr >= 5:
+                color = 'green'
+            elif ctr >= 2:
+                color = 'orange'
+            else:
+                color = 'red'
+            return format_html(
+                '<span style="color: {}; font-weight: bold;">{:.2f}%</span>',
+                color, ctr
+            )
+        except Exception:
+            return '0.00%'
     ctr_display.short_description = 'CTR'
     
     def activate_ads(self, request, queryset):

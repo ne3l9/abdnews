@@ -1,4 +1,4 @@
-// app.js - Dynamic data rendering for NewsHub frontend
+// app.js - Dynamic data rendering for ABD News frontend
 
 // Update authentication buttons in header
 function updateAuthButtons() {
@@ -61,7 +61,7 @@ function renderHeader(siteSettings, categories) {
     const logoDiv = document.querySelector('.logo');
     if (logoDiv && siteSettings) {
         // Use static logo image
-        const logoIcon = `<a href="/index.html"><img src="/assets/images/logo/logo.png" alt="NewsHub Logo" style="height: 40px; object-fit: contain;"></a>`;
+        const logoIcon = `<a href="/index.html"><img src="/assets/images/logo/logo.png" alt="ABD News Logo" style="height: 40px; object-fit: contain;"></a>`;
         
         logoDiv.innerHTML = logoIcon;
     }
@@ -419,7 +419,7 @@ function renderGridSection(section, articles) {
                             <p class="article-excerpt">${article.summary || ''}</p>
                             <div class="article-footer">
                                 <div class="article-author">
-                                    <i class="fas fa-user-circle"></i> ${article.author_name || 'NewsHub'}
+                                    <i class="fas fa-user-circle"></i> ${article.author_name || 'ABD News'}
                                 </div>
                                 <div class="article-stats">
                                     <span><i class="far fa-eye"></i> ${article.views_count?.toLocaleString() || 0}</span>
@@ -438,7 +438,7 @@ function renderGridSection(section, articles) {
 function renderSEO(seoSettings) {
     if (!seoSettings) return;
 
-    document.title = seoSettings.meta_title || 'NewsHub - Latest News';
+    document.title = seoSettings.meta_title || 'ABD News - Latest News';
     
     // Meta description
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -494,15 +494,36 @@ function renderAds(ads, position) {
     containers.forEach(container => {
         if (positionAds.length > 0) {
             const ad = positionAds[0]; // Show first active ad
-            const adImage = ad.image_url 
-                ? `<img src="${ad.image_url}" alt="${ad.title}" class="ad-image">`
-                : '';
+            const imageUrl = ad.image_url || (ad.image ? resolveMediaUrl(ad.image) : null);
+            
+            if (imageUrl) {
+                container.innerHTML = `
+                    <div class="advertisement" style="width: 100%; height: 100%;">
+                        <a href="${ad.link_url || '#'}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; height: 100%;">
+                            <img src="${imageUrl}" alt="${ad.title}" style="width: 100%; height: auto; display: block; border-radius: 12px;" />
+                        </a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="advertisement" style="padding: 40px; text-align: center; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px;">
+                        <h3 style="font-size: 24px; color: #555; margin: 0 0 10px 0;">${ad.title}</h3>
+                        <a href="${ad.link_url || '#'}" target="_blank" style="display: inline-block; padding: 12px 24px; background: var(--toi-red); color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Learn More</a>
+                    </div>
+                `;
+            }
+            
+            // Track impression
+            if (ad.id) {
+                // TODO: Add impression tracking API call
+                console.log(`Ad impression: ${ad.title}`);
+            }
+        } else {
+            // Show placeholder if no ads available
             container.innerHTML = `
-                <div class="advertisement">
-                    <a href="${ad.link_url}" target="_blank" rel="noopener noreferrer">
-                        ${adImage}
-                        <div class="ad-title">${ad.title}</div>
-                    </a>
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <i class="fas fa-ad" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                    <p style="font-size: 16px;">Advertisement Space Available</p>
                 </div>
             `;
         }
@@ -632,6 +653,7 @@ async function loadHomePage() {
 
         // Render ads in various positions
         renderAds(ads, 'header');
+        renderAds(ads, 'homepage');
         renderAds(ads, 'content');
         renderAds(ads, 'footer');
 
@@ -699,7 +721,7 @@ function renderPlaceholderContent() {
     container.innerHTML = `
         <div style="text-align: center; padding: 60px 20px;">
             <i class="fas fa-newspaper" style="font-size: 64px; color: var(--medium-gray); margin-bottom: 20px;"></i>
-            <h2 style="font-size: 24px; color: var(--dark-gray); margin-bottom: 10px;">Welcome to NewsHub</h2>
+            <h2 style="font-size: 24px; color: var(--dark-gray); margin-bottom: 10px;">Welcome to ABD News</h2>
             <p style="color: var(--medium-gray); font-size: 16px; max-width: 600px; margin: 0 auto;">
                 No content available yet. Please add articles in the admin panel to see them here.
             </p>
@@ -907,7 +929,7 @@ function renderEditorialPage(articles) {
                     <div class="editorial-author">
                         <div class="author-avatar"><i class="fas fa-user"></i></div>
                         <div class="author-info">
-                            <h4>${article.author_name || 'NewsHub'}</h4>
+                            <h4>${article.author_name || 'ABD News'}</h4>
                             <p>${article.author_designation || ''}</p>
                         </div>
                     </div>
@@ -956,7 +978,7 @@ async function loadArticlePage() {
         if (title) title.textContent = article.title;
         if (categoryTag) categoryTag.textContent = article.category?.name || 'News';
 
-        if (authorName) authorName.textContent = article.author?.full_name || article.author?.user?.username || article.author_name || 'NewsHub';
+        if (authorName) authorName.textContent = article.author?.full_name || article.author?.user?.username || article.author_name || 'ABD News';
         if (authorRole) authorRole.textContent = article.author?.designation || article.author_designation || '';
 
         if (meta) {
@@ -964,7 +986,7 @@ async function loadArticlePage() {
                 <div class="article-author-info">
                     <div class="author-avatar"><i class="fas fa-user"></i></div>
                     <div>
-                        <strong>${article.author?.full_name || article.author?.user?.username || article.author_name || 'NewsHub'}</strong>
+                        <strong>${article.author?.full_name || article.author?.user?.username || article.author_name || 'ABD News'}</strong>
                         <p style="font-size: 12px; margin: 0;">${article.author?.designation || article.author_designation || ''}</p>
                     </div>
                 </div>
@@ -991,7 +1013,7 @@ async function loadArticlePage() {
                         <i class="fas fa-lock" style="font-size: 48px; color: var(--toi-red); margin-bottom: 20px;"></i>
                         <h2 style="color: var(--dark-gray); margin-bottom: 15px;">Subscribe to Continue Reading</h2>
                         <p style="color: var(--medium-gray); font-size: 16px; margin-bottom: 25px;">
-                            This is a preview. Subscribe to NewsHub Premium to access full articles, exclusive content, and much more.
+                            This is a preview. Subscribe to ABD News Premium to access full articles, exclusive content, and much more.
                         </p>
                         <div style="display: flex; gap: 15px; justify-content: center;">
                             <a href="/pages/subscription.html" style="background: var(--toi-red); color: white; padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
@@ -1067,7 +1089,7 @@ async function loadVideosPage() {
                     
                     const metaSpans = parent.querySelectorAll('.featured-video-meta span');
                     if (metaSpans.length >= 3) {
-                        metaSpans[0].innerHTML = `<i class="fas fa-user"></i> ${featured.author_name || 'NewsHub'}`;
+                        metaSpans[0].innerHTML = `<i class="fas fa-user"></i> ${featured.author_name || 'ABD News'}`;
                         metaSpans[1].innerHTML = `<i class="far fa-eye"></i> ${featured.views_count?.toLocaleString() || 0} views`;
                         metaSpans[2].innerHTML = `<i class="far fa-calendar"></i> ${formatDate(featured.published_at)}`;
                     }
@@ -1112,7 +1134,7 @@ function renderVideoGrid(videos) {
                     <p class="video-excerpt">${video.description?.substring(0, 100) || ''}...</p>
                     <div class="video-footer">
                         <div class="video-author">
-                            <i class="fas fa-user-circle"></i> ${video.author_name || 'NewsHub'}
+                            <i class="fas fa-user-circle"></i> ${video.author_name || 'ABD News'}
                         </div>
                         <div class="video-stats">
                             <span><i class="far fa-eye"></i> ${video.views_count?.toLocaleString() || 0}</span>
@@ -1216,9 +1238,12 @@ function openVideoModal(videoUrl) {
 
     // Convert video URL to embed format
     const embedUrl = convertToEmbedUrl(videoUrl);
+    
+    console.log('Opening video:', videoUrl);
+    console.log('Embed URL:', embedUrl);
 
     // Set iframe src
-    const iframe = modal.querySelector('iframe');
+    const iframe = modal.querySelector('#videoIframe');
     if (iframe) {
         iframe.src = embedUrl;
     }
@@ -1231,7 +1256,7 @@ function openVideoModal(videoUrl) {
 function closeVideoModal() {
     const modal = document.getElementById('videoModal');
     if (modal) {
-        const iframe = modal.querySelector('iframe');
+        const iframe = modal.querySelector('#videoIframe');
         if (iframe) {
             iframe.src = ''; // Stop video playback
         }
@@ -1244,6 +1269,13 @@ function closeVideoModal() {
 window.openVideoModal = openVideoModal;
 window.closeVideoModal = closeVideoModal;
 
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeVideoModal();
+    }
+});
+
 function createVideoModal() {
     const modal = document.createElement('div');
     modal.id = 'videoModal';
@@ -1255,34 +1287,40 @@ function createVideoModal() {
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
+        background-color: rgba(0, 0, 0, 0.95);
         align-items: center;
         justify-content: center;
+        padding: 20px;
     `;
 
     modal.innerHTML = `
-        <div style="position: relative; width: 90%; max-width: 1200px; aspect-ratio: 16/9;">
-            <button onclick="closeVideoModal()" style="position: absolute; top: -40px; right: 0; background: transparent; border: none; color: white; font-size: 36px; cursor: pointer; z-index: 10001;">
+        <div style="position: relative; width: 100%; max-width: 1200px; background: #000; border-radius: 8px; padding: 10px;">
+            <button id="closeVideoBtn" style="position: absolute; top: -45px; right: 0; background: var(--toi-red); border: none; color: white; font-size: 24px; cursor: pointer; z-index: 10001; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
                 <i class="fas fa-times"></i>
             </button>
-            <iframe 
-                style="width: 100%; height: 100%; border: none; border-radius: 8px;" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-            </iframe>
+            <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000;">
+                <iframe 
+                    id="videoIframe"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px;" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen>
+                </iframe>
+            </div>
         </div>
     `;
+
+    // Close button click handler
+    const closeBtn = modal.querySelector('#closeVideoBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeVideoModal();
+        });
+    }
 
     // Close on background click
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
-            closeVideoModal();
-        }
-    });
-
-    // Close on escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
             closeVideoModal();
         }
     });
@@ -1292,30 +1330,53 @@ function createVideoModal() {
 }
 
 function convertToEmbedUrl(url) {
-    // YouTube
-    if (url.includes('youtube.com/watch')) {
-        const videoId = new URL(url).searchParams.get('v');
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    }
-    if (url.includes('youtu.be/')) {
-        const videoId = url.split('youtu.be/')[1].split('?')[0];
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    }
+    if (!url) return '';
+    
+    try {
+        // YouTube - regular watch URL
+        if (url.includes('youtube.com/watch')) {
+            const urlObj = new URL(url);
+            const videoId = urlObj.searchParams.get('v');
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            }
+        }
+        
+        // YouTube - short URL
+        if (url.includes('youtu.be/')) {
+            const videoId = url.split('youtu.be/')[1].split('?')[0].split('/')[0];
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            }
+        }
 
-    // Vimeo
-    if (url.includes('vimeo.com/')) {
-        const videoId = url.split('vimeo.com/')[1].split('?')[0];
-        return `https://player.vimeo.com/video/${videoId}?autoplay=1`;
-    }
+        // YouTube - already embed URL
+        if (url.includes('youtube.com/embed/')) {
+            return url.includes('autoplay') ? url : url + '?autoplay=1&rel=0';
+        }
 
-    // Dailymotion
-    if (url.includes('dailymotion.com/video/')) {
-        const videoId = url.split('dailymotion.com/video/')[1].split('?')[0];
-        return `https://www.dailymotion.com/embed/video/${videoId}?autoplay=1`;
-    }
+        // Vimeo
+        if (url.includes('vimeo.com/')) {
+            const videoId = url.split('vimeo.com/')[1].split('?')[0].split('/')[0];
+            if (videoId) {
+                return `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+            }
+        }
 
-    // If already an embed URL or unknown format, return as is
-    return url;
+        // Dailymotion
+        if (url.includes('dailymotion.com/video/')) {
+            const videoId = url.split('dailymotion.com/video/')[1].split('?')[0];
+            if (videoId) {
+                return `https://www.dailymotion.com/embed/video/${videoId}?autoplay=1`;
+            }
+        }
+
+        // If already an embed URL or unknown format, return as is
+        return url;
+    } catch (error) {
+        console.error('Error converting video URL:', error);
+        return url;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

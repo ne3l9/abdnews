@@ -29,7 +29,7 @@ class CategoryAdmin(admin.ModelAdmin):
 			'fields': ('name', 'slug', 'parent')
 		}),
 		('Visual Design', {
-			'fields': ('icon', 'icon_preview', 'color', 'color_preview')
+			'fields': ('icon', 'icon_preview', 'color')
 		}),
 		('Settings', {
 			'fields': ('is_active', 'order', 'description')

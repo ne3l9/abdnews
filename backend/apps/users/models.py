@@ -214,7 +214,7 @@ class SubscriptionPlan(models.Model):
     features = models.JSONField(
         default=list,
         blank=True,
-        help_text='List of features included in this plan'
+        help_text='List of features included in this plan (e.g., ["Advanced Analytics", "Priority Support", "Custom Reports"])'
     )
     includes_email_notifications = models.BooleanField(
         default=True,

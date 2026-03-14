@@ -238,7 +238,7 @@ const CategoryManager = {
         }
         
         // Update page title
-        document.title = `${category.name} - NewsHub`;
+        document.title = `${category.name} - ABD News`;
         
         // Update page header
         const pageHeader = document.querySelector('.page-header');

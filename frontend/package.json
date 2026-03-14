@@ -1,7 +1,7 @@
 {
     "name": "newshub-frontend",
     "version": "1.0.0",
-    "description": "NewsHub - Modern News Portal Frontend",
+    "description": "ABD News - Modern News Portal Frontend",
     "main": "index.html",
     "scripts": {
       "start": "live-server --port=3000 --open=index.html",
